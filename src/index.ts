@@ -7,7 +7,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register(/* { strapi }: { strapi: Core.Strapi } */) { },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -139,11 +139,49 @@ export default {
 
       for (const projectData of realProjects) {
         try {
+          const stackIds = []
+          for (const stackName of projectData.tech_stack) {
+            let stackEntry = await strapi.db.query('api::stack.stack').findOne({ where: { name: stackName } })
+            if (!stackEntry) {
+              stackEntry = await strapi.entityService.create('api::stack.stack', { data: { name: stackName } })
+            }
+            stackIds.push(stackEntry.id)
+          }
+
+          const { tech_stack, ...rest } = projectData
+          const dataToInsert = { ...rest, stacks: stackIds }
+
           await strapi.entityService.create('api::project.project', {
-            data: projectData,
+            data: dataToInsert,
           })
         } catch (err) {
           console.error(`Failed to seed project ${projectData.name}:`, err.message)
+        }
+      }
+
+      // Seed global toolkit skills
+      const globalSkills = [
+        'Vue 3',
+        'TypeScript',
+        'Node.js',
+        'Strapi CMS',
+        'GSAP Animation',
+        'Tailwind CSS',
+        'PostgreSQL',
+        'UI/UX Design',
+        'Cloud Deployment',
+      ]
+
+      for (const skillName of globalSkills) {
+        try {
+          const exists = await strapi.db.query('api::stack.stack').findOne({ where: { name: skillName } })
+          if (!exists) {
+            await strapi.entityService.create('api::stack.stack', {
+              data: { name: skillName, publishedAt: new Date() },
+            })
+          }
+        } catch (err) {
+          console.error(`Failed to seed global skill ${skillName}:`, err.message)
         }
       }
     }
@@ -155,7 +193,12 @@ export default {
       })
 
       if (publicRole) {
-        const actions = ['api::project.project.find', 'api::project.project.findOne']
+        const actions = [
+          'api::project.project.find',
+          'api::project.project.findOne',
+          'api::stack.stack.find',
+          'api::stack.stack.findOne',
+        ]
 
         for (const action of actions) {
           const existingPermission = await strapi.db.query('plugin::users-permissions.permission').findOne({

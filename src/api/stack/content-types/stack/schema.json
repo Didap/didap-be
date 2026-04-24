@@ -1,0 +1,35 @@
+{
+    "kind": "collectionType",
+    "collectionName": "stacks",
+    "info": {
+        "singularName": "stack",
+        "pluralName": "stacks",
+        "displayName": "Stack",
+        "description": "Technological Stack"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "name": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
+        "logo": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "projects": {
+            "type": "relation",
+            "relation": "manyToMany",
+            "target": "api::project.project",
+            "mappedBy": "stacks"
+        }
+    }
+}

@@ -82,8 +82,11 @@
       "repeatable": true,
       "component": "project.ability"
     },
-    "tech_stack": {
-      "type": "json"
+    "stacks": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::stack.stack",
+      "inversedBy": "projects"
     }
   }
 }

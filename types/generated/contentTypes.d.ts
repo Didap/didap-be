@@ -479,11 +479,41 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     rarity: Schema.Attribute.Enumeration<['common', 'rare', 'ultra']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'common'>;
-    tech_stack: Schema.Attribute.JSON;
+    stacks: Schema.Attribute.Relation<'manyToMany', 'api::stack.stack'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     year: Schema.Attribute.Integer & Schema.Attribute.Required;
+  };
+}
+
+export interface ApiStackStack extends Struct.CollectionTypeSchema {
+  collectionName: 'stacks';
+  info: {
+    description: 'Technological Stack';
+    displayName: 'Stack';
+    pluralName: 'stacks';
+    singularName: 'stack';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::stack.stack'> &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images'>;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -999,6 +1029,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::project.project': ApiProjectProject;
+      'api::stack.stack': ApiStackStack;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
